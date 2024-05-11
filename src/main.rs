@@ -2,17 +2,19 @@
 #![no_main]
 
 use core::arch::asm;
+use core::fmt::Write;
 use core::panic::PanicInfo;
 
-use lemonos::efi::{EfiHandle, EfiSystemTable};
+use lemonos::efi::{EfiHandle, EfiSimpleTextOutputProtocolWriter, EfiSystemTable};
 
 #[no_mangle]
 fn efi_main(_image_handle: EfiHandle, efi_system_table: EfiSystemTable) {
-    efi_system_table.con_out.get_ref().write_string("LemonOS\n");
-    efi_system_table
-        .con_out
-        .get_ref()
-        .write_string("Hello, world!\n");
+    let mut efi_writer = EfiSimpleTextOutputProtocolWriter {
+        protocol: efi_system_table.con_out,
+    };
+    writeln!(efi_writer, "Hello, LemonOS!").unwrap();
+    writeln!(efi_writer, "EFI_SYSTEM_TABLE at {:#p}", &efi_system_table).unwrap();
+
     loop {
         unsafe { asm!("hlt") }
     }

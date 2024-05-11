@@ -1,3 +1,4 @@
+use core::fmt;
 use core::pin::Pin;
 
 pub type EfiHandle = usize;
@@ -22,7 +23,7 @@ pub struct EfiTableHeader {
 pub struct EfiSimpleTextOutputProtocol {
     reset: EfiHandle,
     output_string:
-        extern "win64" fn(this: *const EfiSimpleTextOutputProtocol, str: *const u16) -> EfiStatus,
+        extern "win64" fn(this: &EfiSimpleTextOutputProtocol, str: *const u16) -> EfiStatus,
     test_string: EfiHandle,
     query_mode: EfiHandle,
     set_mode: EfiHandle,
@@ -33,13 +34,17 @@ pub struct EfiSimpleTextOutputProtocol {
     mode: EfiHandle,
 }
 
-impl EfiSimpleTextOutputProtocol {
+pub struct EfiSimpleTextOutputProtocolWriter {
+    pub protocol: Pin<&'static EfiSimpleTextOutputProtocol>,
+}
+
+impl EfiSimpleTextOutputProtocolWriter {
     pub fn write_char(&self, c: u8) {
         let c16: [u16; 2] = [c.into(), 0];
-        (self.output_string)(self, c16.as_ptr());
+        (self.protocol.output_string)(&self.protocol, c16.as_ptr());
     }
 
-    // TODO; `self.output_string`に，ヌル終端されたCHAR16のポインタを直接渡す
+    // TODO; `self.protocol.output_string`に，ヌル終端されたCHAR16のポインタを直接渡す
     pub fn write_string(&self, str: &str) {
         for c in str.bytes() {
             if c == b'\n' {
@@ -48,6 +53,13 @@ impl EfiSimpleTextOutputProtocol {
             }
             self.write_char(c);
         }
+    }
+}
+
+impl fmt::Write for EfiSimpleTextOutputProtocolWriter {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
+        Ok(())
     }
 }
 
