@@ -44,8 +44,13 @@ impl EfiSimpleTextOutputProtocol {
         ((self.output_string)(self, c16.as_ptr()));
     }
 
+    // TODO; `self.output_string`に，ヌル終端されたCHAR16のポインタを直接渡す
     pub fn write_string(&self, str: &str) {
         for c in str.bytes() {
+            if c == b'\n' {
+                // use CRLF
+                self.write_char(b'\r');
+            }
             self.write_char(c);
         }
     }
@@ -71,10 +76,11 @@ pub struct EfiSystemTable {
 
 #[no_mangle]
 fn efi_main(_image_handle: EfiHandle, efi_system_table: EfiSystemTable) {
+    efi_system_table.con_out.get_ref().write_string("LemonOS\n");
     efi_system_table
         .con_out
         .get_ref()
-        .write_string("Hello, world!");
+        .write_string("Hello, world!\n");
     loop {
         unsafe { asm!("hlt") }
     }
