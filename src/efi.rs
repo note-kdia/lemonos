@@ -34,8 +34,16 @@ pub struct EfiSimpleTextOutputProtocol {
     mode: EfiHandle,
 }
 
-/// EfiSimpleTextOutputProtocolを使って、テキストを表示するための構造体
-/// fmt::Writeを実装するには、ミュータブルな参照を渡さないといけないため作成している
+/// UEFIの画面にテキストを表示する
+///
+/// # Examples
+/// ```
+/// let mut efi_writer = EfiSimpleTextOutputProtocolWriter {
+///     protocol: efi_system_table.con_out,
+/// };
+/// writeln!(efi_writer, "Hello, {}", "world!").unwrap(); // Hello, world!
+/// ```
+///
 pub struct EfiSimpleTextOutputProtocolWriter {
     pub protocol: Pin<&'static EfiSimpleTextOutputProtocol>,
 }
