@@ -34,31 +34,33 @@ pub struct EfiSimpleTextOutputProtocol {
     mode: EfiHandle,
 }
 
+/// EfiSimpleTextOutputProtocolを使って、テキストを表示するための構造体
+/// fmt::Writeを実装するには、ミュータブルな参照を渡さないといけないため作成している
 pub struct EfiSimpleTextOutputProtocolWriter {
     pub protocol: Pin<&'static EfiSimpleTextOutputProtocol>,
 }
 
 impl EfiSimpleTextOutputProtocolWriter {
-    pub fn write_char(&self, c: u8) {
+    pub fn _write_char(&self, c: u8) {
         let c16: [u16; 2] = [c.into(), 0];
         (self.protocol.output_string)(&self.protocol, c16.as_ptr());
     }
 
     // TODO; `self.protocol.output_string`に，ヌル終端されたCHAR16のポインタを直接渡す
-    pub fn write_string(&self, str: &str) {
+    pub fn _write_str(&self, str: &str) {
         for c in str.bytes() {
             if c == b'\n' {
                 // use CRLF
-                self.write_char(b'\r');
+                self._write_char(b'\r');
             }
-            self.write_char(c);
+            self._write_char(c);
         }
     }
 }
 
 impl fmt::Write for EfiSimpleTextOutputProtocolWriter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.write_string(s);
+        self._write_str(s);
         Ok(())
     }
 }
