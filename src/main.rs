@@ -41,7 +41,7 @@ pub struct EfiSimpleTextOutputProtocol {
 impl EfiSimpleTextOutputProtocol {
     pub fn write_char(&self, c: u8) {
         let c16: [u16; 2] = [c.into(), 0];
-        ((self.output_string)(self, c16.as_ptr()));
+        (self.output_string)(self, c16.as_ptr());
     }
 
     // TODO; `self.output_string`に，ヌル終端されたCHAR16のポインタを直接渡す
