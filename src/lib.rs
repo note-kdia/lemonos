@@ -3,6 +3,7 @@
 
 pub mod efi;
 pub mod serial;
+pub mod spinlock;
 pub mod x86_64;
 
 pub fn init() {
