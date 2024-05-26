@@ -32,5 +32,7 @@ pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
     if let Some(writer) = &mut *GLOBAL_WRITER.writer.lock() {
         writer.write_fmt(args).unwrap();
+    } else {
+        panic!("No writer for GLOBAL_WRITER")
     }
 }
