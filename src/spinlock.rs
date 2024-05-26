@@ -16,10 +16,11 @@ impl<T> SpinLock<T> {
         }
     }
 
-    pub fn lock(&self) {
+    pub fn lock(&self) -> Guard<T> {
         while self.locked.swap(true, Acquire) {
             core::hint::spin_loop();
         }
+        Guard { lock: self }
     }
 
     /// # Safety
