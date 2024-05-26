@@ -1,11 +1,26 @@
 use core::fmt;
 use core::pin::Pin;
 
+use crate::error::Error;
+
 pub type EfiHandle = usize;
 
-#[repr(C)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[repr(u64)]
 pub enum EfiStatus {
-    Success = 0,
+    Success = 0x0,
+    Unsupported = 0x8000000000000003,
+    DeviceError = 0x8000000000000007,
+}
+
+impl EfiStatus {
+    pub fn into_result(self) -> Result<(), Error> {
+        if self == EfiStatus::Success {
+            Ok(())
+        } else {
+            Err(self.into())
+        }
+    }
 }
 
 // https://uefi.org/specs/UEFI/2.9_A/04_EFI_System_Table.html#id4
@@ -28,10 +43,17 @@ pub struct EfiSimpleTextOutputProtocol {
     query_mode: EfiHandle,
     set_mode: EfiHandle,
     set_attribute: EfiHandle,
-    clear_screen: EfiHandle,
+    clear_screen: extern "win64" fn(this: &EfiSimpleTextOutputProtocol) -> EfiStatus,
     set_cursor_position: EfiHandle,
     enable_cursor: EfiHandle,
     mode: EfiHandle,
+}
+
+impl EfiSimpleTextOutputProtocol {
+    /// UEFIの画面をクリアする
+    pub fn clear_screen(&self) -> EfiStatus {
+        (self.clear_screen)(self)
+    }
 }
 
 /// UEFIの画面にテキストを表示する
