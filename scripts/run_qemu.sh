@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 PATH_TO_EFI="$1"
 cd `dirname $0`
