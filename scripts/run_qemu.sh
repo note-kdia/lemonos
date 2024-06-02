@@ -8,4 +8,5 @@ cp ${PATH_TO_EFI} mnt/EFI/BOOT/BOOTX64.EFI
 qemu-system-x86_64 \
     -bios third-party/ovmf/RELEASEX64_OVMF.fd \
     -drive format=raw,file=fat:rw:mnt \
+    -device isa-debug-exit,iobase=0xf4,iosize=0x04 \
     -serial stdio

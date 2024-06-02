@@ -7,13 +7,3 @@ edition = "2021"
 
 [dependencies]
 
-[profile.dev]
-panic = "abort"
-
-[profile.release]
-panic = "abort"
-
-[[bin]]
-name = "lemonos"
-test = false
-bench = false
