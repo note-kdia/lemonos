@@ -8,6 +8,7 @@ use core::panic::PanicInfo;
 
 use lemonos::efi::{EfiHandle, EfiSystemTable};
 use lemonos::println;
+use lemonos::serial_println;
 
 fn main() -> ! {
     println!("Enter main()");
@@ -30,28 +31,47 @@ fn efi_main(_image_handle: EfiHandle, efi_system_table: EfiSystemTable) {
 
 #[cfg(not(test))]
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    serial_println!("Error: {}\n", info);
     lemonos::x86_64::rest_in_peace();
+}
+
+pub trait Testable {
+    fn run(&self);
+}
+
+impl<T> Testable for T
+where
+    T: Fn(),
+{
+    fn run(&self) {
+        use lemonos::{serial_print, serial_println};
+        serial_print!("{}...\t", core::any::type_name::<T>());
+        self();
+        serial_println!("[ok]");
+    }
 }
 
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     use lemonos::qemu::{exit_qemu, ExitCode};
+    use lemonos::serial_println;
 
-    println!("[failed]\n");
-    println!("Error: {}\n", info);
+    serial_println!("[failed]\n");
+    serial_println!("Error: {}\n", info);
     exit_qemu(ExitCode::Failed);
     lemonos::x86_64::rest_in_peace();
 }
 
 #[cfg(test)]
-pub fn test_runner(tests: &[&dyn Fn()]) {
+pub fn test_runner(tests: &[&dyn Testable]) {
     use lemonos::qemu::{exit_qemu, ExitCode};
+    use lemonos::serial_println;
 
-    println!("Running {} tests", tests.len());
+    serial_println!("Running {} tests", tests.len());
     for test in tests {
-        test();
+        test.run();
     }
 
     exit_qemu(ExitCode::Success)
@@ -59,10 +79,6 @@ pub fn test_runner(tests: &[&dyn Fn()]) {
 
 #[test_case]
 fn trivial_assertion() {
-    use lemonos::print;
-
-    print!("trivial assertion...");
     let one = 1;
     assert_eq!(1, one);
-    println!("[ok]");
 }
