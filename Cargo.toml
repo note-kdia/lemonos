@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 
+[[test]]
+name = "should_panic"
+harness = false
