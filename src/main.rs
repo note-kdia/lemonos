@@ -61,7 +61,8 @@ fn panic(info: &PanicInfo) -> ! {
     serial_println!("[failed]\n");
     serial_println!("Error: {}\n", info);
     exit_qemu(ExitCode::Failed);
-    lemonos::x86_64::rest_in_peace();
+
+    unreachable!();
 }
 
 #[cfg(test)]
