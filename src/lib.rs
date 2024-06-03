@@ -17,6 +17,7 @@ pub mod x86_64;
 
 pub fn init(efi_system_table: &EfiSystemTable) {
     serial::initialize(serial::IO_ADDR_COM1);
+    serial::initialize(serial::IO_ADDR_COM3);
 
     efi_system_table.con_out.clear_screen();
 

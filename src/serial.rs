@@ -2,7 +2,11 @@ use crate::x86_64;
 use core::arch::asm;
 use core::fmt;
 
-pub const IO_ADDR_COM1: u16 = 0x03f8;
+// OVMF uses COM1 and COM2 to tee stdout (EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL)
+// see: https://wiki.ubuntu.com/UEFI/OVMF
+pub const IO_ADDR_COM1: u16 = 0x03f8; // OVMF uses
+pub const IO_ADDR_COM3: u16 = 0x03e8; // free use!
+
 const BAUD_DIVISOR: u16 = 0x0001; // baud rate = 115200 / BAUD_DIVISOR
 
 pub fn initialize(base_io_addr: u16) {
@@ -36,7 +40,7 @@ pub struct SerialWriter {}
 
 impl fmt::Write for SerialWriter {
     fn write_str(&mut self, s: &str) -> fmt::Result {
-        send_str(IO_ADDR_COM1, s);
+        send_str(IO_ADDR_COM3, s);
         Ok(())
     }
 }

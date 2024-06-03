@@ -1,12 +1,21 @@
 #!/bin/bash
 
 PATH_TO_EFI="$1"
+# QEMU_BASE_OPTIONS=" \
+#     -bios third-party/ovmf/RELEASEX64_OVMF.fd \
+#     -drive format=raw,file=fat:rw:mnt \
+#     -device isa-debug-exit,iobase=0xf4,iosize=0x04 \
+#     -chardev stdio,id=char_com1,mux=on,logfile=log/com1.txt \
+#     -serial chardev:char_com1 \
+# "
 QEMU_BASE_OPTIONS=" \
     -bios third-party/ovmf/RELEASEX64_OVMF.fd \
     -drive format=raw,file=fat:rw:mnt \
     -device isa-debug-exit,iobase=0xf4,iosize=0x04 \
-    -chardev stdio,id=char_com1,mux=on,logfile=log/com1.txt \
+    -chardev file,id=char_com1,mux=on,path=log/com1.txt \
     -serial chardev:char_com1 \
+    -serial none \
+    -serial stdio \
 "
 QEMU_RUN_OPTIONS=" \
 "
