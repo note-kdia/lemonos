@@ -1,6 +1,9 @@
 use core::arch::asm;
 
-pub fn write_io_port(port: u16, data: u8) {
+/// # Safety
+///
+/// Writing to wrong io port will cause undefined behavior.
+pub unsafe fn write_io_port(port: u16, data: u8) {
     unsafe {
         asm!("out dx, al",
              in("al") data,

@@ -6,6 +6,7 @@ use self::efi::{EfiSimpleTextOutputProtocolWriter, EfiSystemTable};
 pub mod efi;
 pub mod error;
 pub mod print;
+pub mod qemu;
 pub mod serial;
 pub mod spinlock;
 pub mod x86_64;
